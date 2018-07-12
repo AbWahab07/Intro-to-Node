@@ -1,0 +1,127 @@
+- Module Getting Started
+
+-> Vid Node Js background
+Node Js Building Blocks are [ Libuv(Evented I/O Library) + V8(Google's JS engine) + C++/JS ]
+
+Node.js uses an event-driven, non-blocking I/O model that makes it lightweight and efficient.
+Christmas Tree Problem (Using too many Anonymous Callbacks one into another)
+  Code like this can be difficult to maintain and
+  is considered to be the shortcoming of Node JS
+  However, Smart use of named functions, modules, event emitters and streams help in writting maintainable Node App.
+
+
+- Module Modules, require(), NPM
+builtin modules e.g os
+your project file modules e.g module.exports.{your export}
+npm modules e.g request (installed via npm install -g request)
+
+- Module Events and Streams
+Nonblocking doesn't always means callbacks
+In Node Js Nonblocking is achieved by events. We call on method on the resultant object.
+Callback vs Events
+    Callback                                Event
+    1- Request/Reply                        1- Publish/Subscribe
+    2- No results until all results         2- Act on results as they arrive
+    3- Either error or results              3- Partial results before error (Because error event is emitted separately)
+
+Node Event Emitter Class
+  Event can be any string
+  An event can be emitted with zero or more arguments [ emitter.emit(event, [args]) ]
+  Set of events and their arguments constitue a "interface" exposed to the subscriber by the publisher (emitter)
+  Two common patterns for EventEmitter:
+  1- As a return value from a function call
+  2- Object that extends EventEmitter to emit event themselves
+
+- ModuleReadable and Writeable Streams
+  Streams are extensions of EventEmitter with agreed upon interface
+  A unified abstraction for managing data flow, inlcuding
+    Network Traffic
+    File I/O
+    stdin/stdout/stderr
+    and more..
+  A stream is an instance of either
+    Readable Stream
+    Writeable Stream
+  A Readable stream can be pipe()d to a Writeable stream
+    Applies BackPressure (Where Readable stream provides data faster than a Writeable stream can consume it)
+
+  Interface of a Readable stream includes
+    // A boolean to determine if the stream is Readable
+    readable [boolean]
+    // A series of events which are emitted
+    event: 'data'
+    event: 'end'
+    event: 'error'
+    event: 'close'
+    // A series of functions to pause/resume/destroy the stream And a pipe function
+    pause()
+    resume()
+    destroy()
+    pipe()
+
+  Interface of a Writeable stream includes
+    // A boolean to determine if the stream is Writeable
+    writeable [boolean]
+    // A series of events that are emitted
+    event: 'drain' // when it is safe to write to this stream
+    event: 'error'
+    event: 'close'
+    event: 'pipe' // when this stream has been passed to a Readable stream's pipe function
+    // series of functions to write data to a stream or to terminate it
+    write()
+    end()
+    destroy()
+    destroySoon()
+
+  // Dance happens behind a very simple interface
+    pipe() of readable stream is called with Writeable stream as a parameter
+    which in turn emits the pipe event on the Writeable stream
+
+    when data arrives to the readable stream data event is emitted on readable stream
+    and write function on Writeable stream is invoked with this data
+
+    If at some point write function returns a false value indicating no more data should be written
+    pause() of the readable stream is called to pause the flow of data
+
+    Once writeable stream is ready to receive more data drain event is emitted
+    and resume() on readable stream is invoked
+
+    Once the readable stream is finished end event is emitted
+    and end() on the writeable stream is invoked
+
+
+- Module Accessing the Local System
+  Node "process" object
+  Interacting with FileSystem
+  Buffers
+  The "os" module
+
+  Process Object
+    // https://nodejs.org/api/process.html
+    Available by defualt in Node App
+    Have a  collection of streams
+    Instance of EventEmitter
+    Have series of events
+
+  Interacting with File System
+    we use builtin fs module for this
+    Many of the functions provided by fs module are wrappers around POSIX functions
+      fs module is a one area of Node standard library where you'll see significant collection of Synchronous functions
+    fs module provides couple of stream oriented functions
+      e.g fs.createReadStream() / fs.createWriteStream()
+    fs module provides a watch()
+
+  Buffers
+    JS has difficulty dealing with Binary data. However Networking and FileSystem require it.
+    Buffer class provides a raw memory allocation for dealing with binary data directly.
+    Buffers can be converted to/from Strings by providing encoding e.g(ascii,  utf-8, base64, hex etc)
+    Provides a handy way to convert strings from/to base64
+
+- Module Interacting with Web
+  We'll learn
+    How to use node as a web client
+    Building a web server
+    Real time integration using Socket.IO
+
+
+
